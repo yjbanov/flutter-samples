@@ -2,15 +2,28 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'constants.dart';
 import 'home.dart';
 
 void main() {
+  FlutterTimeline.debugCollectionEnabled = true;
   runApp(
     const App(),
   );
+  SemanticsBinding.instance.ensureSemantics();
+  SchedulerBinding.instance.addPersistentFrameCallback((_) {
+    final timings = FlutterTimeline.debugCollect();
+    for (final block in timings.aggregatedBlocks) {
+      if (block.name == 'Semantics.compileChildren') {
+        print('>>> ${block.duration}');
+      }
+    }
+  });
 }
 
 class App extends StatefulWidget {
